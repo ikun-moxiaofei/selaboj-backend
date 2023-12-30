@@ -2,8 +2,12 @@ package com.mxf.springbootinit.common;
 
 /**
  * 返回工具类
+ *ResultUtils 类是一个工具类
+ *它提供了静态方法来创建 BaseResponse 对象
+ *这些方法使得创建响应更加方便。*其中，成功响应的状态码为0，失败响应的状态码通常为一个非零的错误码。
  *
  */
+
 public class ResultUtils {
 
     /**
