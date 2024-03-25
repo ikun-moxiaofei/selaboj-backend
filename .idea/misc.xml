@@ -5,6 +5,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/springboot-init-master/pom.xml" />
+        <option value="$PROJECT_DIR$/selaboj-backend/pom.xml" />
       </list>
     </option>
   </component>
