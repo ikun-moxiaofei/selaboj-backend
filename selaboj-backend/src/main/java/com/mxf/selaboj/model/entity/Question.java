@@ -8,9 +8,10 @@ import lombok.Data;
 
 /**
  * 题目
+ * 
  * @TableName question
  */
-@TableName(value ="question")
+@TableName(value = "question")
 @Data
 public class Question implements Serializable {
     /**
@@ -38,6 +39,16 @@ public class Question implements Serializable {
      * 题目答案
      */
     private String answer;
+
+    /**
+     * 题目类型（0 - 编程题，1 - 选择题）
+     */
+    private Integer questionType;
+
+    /**
+     * 选择题选项（json 数组）
+     */
+    private String options;
 
     /**
      * 题目提交数

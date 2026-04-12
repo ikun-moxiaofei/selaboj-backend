@@ -17,4 +17,9 @@ public class UserRegisterRequest implements Serializable {
     private String userPassword;
 
     private String checkPassword;
+
+    /**
+     * 用户角色：user/teacher/admin
+     */
+    private String userRole;
 }

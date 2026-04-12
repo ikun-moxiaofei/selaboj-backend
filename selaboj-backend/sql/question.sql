@@ -7,6 +7,8 @@ create table if not exists question
     content     text                               null comment '内容',
     tags        varchar(1024)                      null comment '标签列表（json 数组）',
     answer      text                               null comment '题目答案',
+    questionType int      default 0                 not null comment '题目类型（0 - 编程题，1 - 选择题）',
+    options     text                               null comment '选择题选项（json 数组）',
     submitNum   int      default 0                 not null comment '题目提交数',
     acceptedNum int      default 0                 not null comment '题目通过数',
     judgeCase   text                               null comment '判题用例（json 数组）',

@@ -1,6 +1,5 @@
 package com.mxf.selaboj.model.dto.question;
 
-
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,7 +7,6 @@ import java.util.List;
 
 @Data
 public class QuestionUpdateRequest implements Serializable {
-
 
     /**
      * id
@@ -24,6 +22,16 @@ public class QuestionUpdateRequest implements Serializable {
      * 内容
      */
     private String content;
+
+    /**
+     * 题目类型（0 - 编程题，1 - 选择题）
+     */
+    private Integer questionType;
+
+    /**
+     * 选择题选项
+     */
+    private List<QuestionOption> options;
 
     /**
      * 标签列表

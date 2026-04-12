@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.mxf.selaboj.model.dto.question.JudgeConfig;
-import com.mxf.selaboj.model.entity.Post;
+import com.mxf.selaboj.model.dto.question.QuestionOption;
 import com.mxf.selaboj.model.entity.Question;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -57,6 +57,16 @@ public class QuestionVO implements Serializable {
     private JudgeConfig judgeConfig;
 
     /**
+     * 题目类型（0 - 编程题，1 - 选择题）
+     */
+    private Integer questionType;
+
+    /**
+     * 选择题选项
+     */
+    private List<QuestionOption> options;
+
+    /**
      * 点赞数
      */
     private Integer thumbNum;
@@ -102,6 +112,10 @@ public class QuestionVO implements Serializable {
         if (tagList != null) {
             question.setTags(JSONUtil.toJsonStr(tagList));
         }
+        List<QuestionOption> optionList = questionVO.getOptions();
+        if (optionList != null) {
+            question.setOptions(JSONUtil.toJsonStr(optionList));
+        }
         JudgeConfig voJudgeConfig = questionVO.getJudgeConfig();
         if (voJudgeConfig != null) {
             question.setJudgeConfig(JSONUtil.toJsonStr(voJudgeConfig));
@@ -123,8 +137,14 @@ public class QuestionVO implements Serializable {
         BeanUtils.copyProperties(question, questionVO);
         List<String> tagList = JSONUtil.toList(question.getTags(), String.class);
         questionVO.setTags(tagList);
+        String optionsStr = question.getOptions();
+        if (optionsStr != null) {
+            questionVO.setOptions(JSONUtil.toList(optionsStr, QuestionOption.class));
+        }
         String judgeConfigStr = question.getJudgeConfig();
-        questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfigStr, JudgeConfig.class));
+        if (judgeConfigStr != null) {
+            questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfigStr, JudgeConfig.class));
+        }
         return questionVO;
     }
 

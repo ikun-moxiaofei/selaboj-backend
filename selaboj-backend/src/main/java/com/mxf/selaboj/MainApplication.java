@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 主类（项目启动入口）
  *
  */
-// todo 如需开启 Redis，须移除 exclude 中的内容
+// todo 如需开启 Redis，须移除 exclude 中的内容  exclude = {RedisAutoConfiguration.class}
 @SpringBootApplication(exclude = {RedisAutoConfiguration.class})
 // 使用 Spring Boot 框架，并排除 Redis 的自动配置
 

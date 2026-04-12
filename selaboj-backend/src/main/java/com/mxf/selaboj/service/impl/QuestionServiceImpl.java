@@ -51,6 +51,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         String content = question.getContent();
         String tags = question.getTags();
         String answer = question.getAnswer();
+        Integer questionType = question.getQuestionType();
+        String options = question.getOptions();
         String judgeCase = question.getJudgeCase();
         String judgeConfig = question.getJudgeConfig();
         // 创建时，参数不能为空
@@ -67,11 +69,28 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         if (StringUtils.isNotBlank(answer) && answer.length() > 8192) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "答案过长");
         }
-        if (StringUtils.isNotBlank(judgeCase) && judgeCase.length() > 8192) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "判题用例过长");
+        // 校验题目类型
+        if (questionType != null && (questionType < 0 || questionType > 1)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目类型错误");
         }
-        if (StringUtils.isNotBlank(judgeConfig) && judgeConfig.length() > 8192) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "判题配置过长");
+        // 选择题需要校验选项
+        if (questionType != null && questionType == 1) {
+            ThrowUtils.throwIf(StringUtils.isBlank(options), ErrorCode.PARAMS_ERROR, "选择题必须设置选项");
+            if (StringUtils.isNotBlank(options) && options.length() > 8192) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "选项过长");
+            }
+        }
+        // 编程题需要校验判题用例和配置
+        if (questionType != null && questionType == 0) {
+            if (add) {
+                ThrowUtils.throwIf(StringUtils.isBlank(judgeCase) || StringUtils.isBlank(judgeConfig), ErrorCode.PARAMS_ERROR, "编程题必须设置判题用例和配置");
+            }
+            if (StringUtils.isNotBlank(judgeCase) && judgeCase.length() > 8192) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "判题用例过长");
+            }
+            if (StringUtils.isNotBlank(judgeConfig) && judgeConfig.length() > 8192) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "判题配置过长");
+            }
         }
     }
 

@@ -34,6 +34,16 @@ public class QuestionEditRequest implements Serializable {
     private String answer;
 
     /**
+     * 题目类型（0 - 编程题，1 - 选择题）
+     */
+    private Integer questionType;
+
+    /**
+     * 选择题选项
+     */
+    private List<QuestionOption> options;
+
+    /**
      * 判题用例
      */
     private List<JudgeCase> judgeCase;

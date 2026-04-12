@@ -12,6 +12,7 @@ import com.mxf.selaboj.constant.UserConstant;
 import com.mxf.selaboj.exception.BusinessException;
 import com.mxf.selaboj.exception.ThrowUtils;
 import com.mxf.selaboj.model.dto.question.*;
+import com.mxf.selaboj.model.dto.question.QuestionOption;
 import com.mxf.selaboj.model.entity.Question;
 import com.mxf.selaboj.model.entity.User;
 import com.mxf.selaboj.model.vo.QuestionVO;
@@ -52,7 +53,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/add")
-    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addQuestion(@RequestBody QuestionAddRequest questionAddRequest,
+            HttpServletRequest request) {
         if (questionAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -66,12 +68,21 @@ public class QuestionController {
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
         }
+        List<QuestionOption> options = questionAddRequest.getOptions();
+        if (options != null) {
+            question.setOptions(GSON.toJson(options));
+        }
+        question.setQuestionType(questionAddRequest.getQuestionType());
         JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
         if (judgeConfig != null) {
             question.setJudgeConfig(GSON.toJson(judgeConfig));
         }
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
+        // 检查是否为老师或管理员
+        if (!"teacher".equals(loginUser.getUserRole()) && !"admin".equals(loginUser.getUserRole())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "只有老师可以创建题目");
+        }
         question.setUserId(loginUser.getId());
         question.setFavourNum(0);
         question.setThumbNum(0);
@@ -128,6 +139,11 @@ public class QuestionController {
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
         }
+        List<QuestionOption> options = questionUpdateRequest.getOptions();
+        if (options != null) {
+            question.setOptions(GSON.toJson(options));
+        }
+        question.setQuestionType(questionUpdateRequest.getQuestionType());
         JudgeConfig judgeConfig = questionUpdateRequest.getJudgeConfig();
         if (judgeConfig != null) {
             question.setJudgeConfig(GSON.toJson(judgeConfig));
@@ -192,7 +208,7 @@ public class QuestionController {
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                               HttpServletRequest request) {
+            HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
@@ -211,7 +227,7 @@ public class QuestionController {
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                                 HttpServletRequest request) {
+            HttpServletRequest request) {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -236,7 +252,7 @@ public class QuestionController {
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<Question>> listQuestionByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-                                                           HttpServletRequest request) {
+            HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         Page<Question> questionPage = questionService.page(new Page<>(current, size),
@@ -254,7 +270,8 @@ public class QuestionController {
      * @return
      */
     @PostMapping("/edit")
-    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> editQuestion(@RequestBody QuestionEditRequest questionEditRequest,
+            HttpServletRequest request) {
         if (questionEditRequest == null || questionEditRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -268,6 +285,11 @@ public class QuestionController {
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
         }
+        List<QuestionOption> options = questionEditRequest.getOptions();
+        if (options != null) {
+            question.setOptions(GSON.toJson(options));
+        }
+        question.setQuestionType(questionEditRequest.getQuestionType());
         JudgeConfig judgeConfig = questionEditRequest.getJudgeConfig();
         if (judgeConfig != null) {
             question.setJudgeConfig(GSON.toJson(judgeConfig));

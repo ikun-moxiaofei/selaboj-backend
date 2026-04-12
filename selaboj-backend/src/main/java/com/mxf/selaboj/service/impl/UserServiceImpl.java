@@ -42,6 +42,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
+        return userRegister(userAccount, userPassword, checkPassword, "user");
+    }
+
+    @Override
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String userRole) {
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -70,6 +75,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
+            // 设置角色
+            if (StringUtils.isBlank(userRole)) {
+                user.setUserRole("user");
+            } else if ("teacher".equals(userRole) || "admin".equals(userRole)) {
+                user.setUserRole(userRole);
+            } else {
+                user.setUserRole("user");
+            }
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
