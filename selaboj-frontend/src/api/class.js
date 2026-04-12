@@ -65,6 +65,18 @@ const classApi = {
   // 获取班级成员列表
   getClassMembers: (classId) => {
     return api.get(`/class/member/list?classId=${classId}`)
+  },
+  // 学生加入班级
+  joinClass: (classCode) => {
+    return api.post(`/class/join?classCode=${classCode}`)
+  },
+  // 学生退出班级
+  leaveClass: (classId) => {
+    return api.post(`/class/leave?classId=${classId}`)
+  },
+  // 获取学生加入的班级列表
+  getMyClasses: () => {
+    return api.get('/class/my/list')
   }
 }
 

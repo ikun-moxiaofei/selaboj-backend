@@ -5,6 +5,7 @@
     <file url="file://$PROJECT_DIR$/selaboj-backend/sql/class.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/selaboj-backend/sql/create_table.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/selaboj-backend/sql/exam.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/selaboj-backend/sql/insert_questions.sql" dialect="MySQL" />
     <file url="PROJECT" dialect="MySQL" />
   </component>
 </project>
