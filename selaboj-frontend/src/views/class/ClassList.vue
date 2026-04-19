@@ -70,7 +70,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '../../stores/user'
+import { useUserStore } from '../../store/user'
 import classApi from '../../api/class'
 
 const router = useRouter()

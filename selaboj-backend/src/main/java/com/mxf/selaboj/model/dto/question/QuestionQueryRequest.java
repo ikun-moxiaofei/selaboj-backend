@@ -44,5 +44,15 @@ public class QuestionQueryRequest extends PageRequest implements Serializable {
      */
     private Long userId;
 
+    /**
+     * 题目类型（0-编程题，1-选择题）
+     */
+    private Integer questionType;
+
+    /**
+     * 搜索关键词
+     */
+    private String keyword;
+
     private static final long serialVersionUID = 1L;
 }

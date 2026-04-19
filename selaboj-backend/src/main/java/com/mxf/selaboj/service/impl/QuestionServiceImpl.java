@@ -112,6 +112,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         List<String> tags = questionQueryRequest.getTags();
         String answer = questionQueryRequest.getAnswer();
         Long userId = questionQueryRequest.getUserId();
+        Integer questionType = questionQueryRequest.getQuestionType();
+        String keyword = questionQueryRequest.getKeyword();
         String sortField = questionQueryRequest.getSortField();
         String sortOrder = questionQueryRequest.getSortOrder();
 
@@ -126,6 +128,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(questionType), "questionType", questionType);
+        // 关键词搜索（搜索标题）
+        queryWrapper.like(StringUtils.isNotBlank(keyword), "title", keyword);
         queryWrapper.eq("isDelete", false);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
