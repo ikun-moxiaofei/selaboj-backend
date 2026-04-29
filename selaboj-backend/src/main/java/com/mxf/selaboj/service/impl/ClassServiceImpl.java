@@ -93,13 +93,16 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class>
         String sortField = classQueryRequest.getSortField();
         String sortOrder = classQueryRequest.getSortOrder();
 
-        // 拼接查询条件
         queryWrapper.like(StringUtils.isNotBlank(className), "className", className);
         queryWrapper.like(StringUtils.isNotBlank(classCode), "classCode", classCode);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
         queryWrapper.eq("isDelete", false);
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                sortField);
+        if (StringUtils.isNotBlank(sortField) && SqlUtils.validSortField(sortField)) {
+            boolean isAsc = CommonConstant.SORT_ORDER_ASC.equals(sortOrder);
+            queryWrapper.orderBy(true, isAsc, sortField);
+        } else {
+            queryWrapper.orderByDesc("createTime");
+        }
         return queryWrapper;
     }
 

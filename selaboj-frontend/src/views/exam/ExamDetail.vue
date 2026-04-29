@@ -121,6 +121,14 @@ import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import examApi from '../../api/exam'
 import questionApi from '../../api/question'
+import axios from 'axios'
+
+// 创建带credentials的axios实例
+const api = axios.create({
+  baseURL: '/api',
+  timeout: 10000,
+  withCredentials: true
+})
 
 const route = useRoute()
 const examId = ref(route.params.id)
@@ -163,6 +171,9 @@ const fetchExamRecord = async () => {
       // 更新考试状态
       if (examRecord.value.status === 1) {
         isExamStarted.value = true
+        // 获取题目列表并更新状态
+        await fetchExamQuestions()
+        await updateQuestionStatus()
       } else if (examRecord.value.status === 2) {
         isExamStarted.value = true
         isExamEnded.value = true
@@ -243,7 +254,7 @@ const handleRunCode = async (question) => {
   
   try {
     // 获取题目的测试用例
-    const questionResponse = await questionApi.getQuestion(question.questionId)
+    const questionResponse = await questionApi.getQuestionVO(question.questionId)
     const questionData = questionResponse.data
     
     if (!questionData.judgeCase) {
@@ -257,19 +268,13 @@ const handleRunCode = async (question) => {
     const expectedOutputs = testCases.map(tc => tc.output)
     
     // 调用代码沙箱运行代码
-    const response = await fetch('/api/code/run', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        code: question.userAnswer,
-        language: question.language || 'java',
-        inputList: inputList
-      })
+    const response = await api.post('/code/run', {
+      code: question.userAnswer,
+      language: question.language || 'java',
+      inputList: inputList
     })
     
-    const result = await response.json()
+    const result = response.data
     
     if (result.code === 0) {
       const outputs = result.data.outputList

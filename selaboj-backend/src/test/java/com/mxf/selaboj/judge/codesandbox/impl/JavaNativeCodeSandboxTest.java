@@ -26,7 +26,7 @@ public class JavaNativeCodeSandboxTest {
                 "}";
         
         String language = QuestionSubmitLanguageEnum.JAVA.getValue();
-        List<String> inputList = Arrays.asList("1 2", "3 4", "10 20");
+        List<String> inputList = Arrays.asList("11 2", "3 4", "10 20", "101 20", "102 20", "130 20");
         
         ExcuteCodeRequest executeCodeRequest = ExcuteCodeRequest.builder()
                 .code(code)

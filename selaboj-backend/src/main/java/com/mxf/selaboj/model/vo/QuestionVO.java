@@ -57,6 +57,11 @@ public class QuestionVO implements Serializable {
     private JudgeConfig judgeConfig;
 
     /**
+     * 判题用例（json 数组）
+     */
+    private String judgeCase;
+
+    /**
      * 题目类型（0 - 编程题，1 - 选择题）
      */
     private Integer questionType;
@@ -145,6 +150,8 @@ public class QuestionVO implements Serializable {
         if (judgeConfigStr != null) {
             questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfigStr, JudgeConfig.class));
         }
+        // 复制判题用例
+        questionVO.setJudgeCase(question.getJudgeCase());
         return questionVO;
     }
 

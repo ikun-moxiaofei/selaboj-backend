@@ -94,14 +94,19 @@ const resetForm = () => {
 
 const fetchQuestionList = async () => {
   try {
-    const response = await questionApi.listQuestionVOByPage({
+    const params = {
       current: currentPage.value,
-      pageSize: pageSize.value,
-      questionType: searchForm.questionType,
-      keyword: searchForm.keyword
-    })
-    questionList.value = response.data.records
-    total.value = response.data.total
+      pageSize: pageSize.value
+    }
+    if (searchForm.questionType !== '') {
+      params.questionType = parseInt(searchForm.questionType)
+    }
+    if (searchForm.keyword) {
+      params.keyword = searchForm.keyword
+    }
+    const response = await questionApi.listQuestionVOByPage(params)
+    questionList.value = response.data.records || []
+    total.value = response.data.total || 0
   } catch (error) {
     console.error('获取题目列表失败', error)
   }

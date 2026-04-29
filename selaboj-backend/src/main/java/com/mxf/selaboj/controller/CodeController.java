@@ -8,9 +8,13 @@ import com.mxf.selaboj.judge.codesandbox.CodeSandbox;
 import com.mxf.selaboj.judge.codesandbox.CodeSandboxFactory;
 import com.mxf.selaboj.judge.codesandbox.model.ExcuteCodeRequest;
 import com.mxf.selaboj.judge.codesandbox.model.ExcuteCodeResponse;
+import com.mxf.selaboj.model.entity.User;
+import com.mxf.selaboj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -18,11 +22,17 @@ import java.util.List;
 @Slf4j
 public class CodeController {
 
+    @Resource
+    private UserService userService;
+
     @PostMapping("/run")
-    public BaseResponse<ExcuteCodeResponse> runCode(@RequestBody CodeRunRequest codeRunRequest) {
+    public BaseResponse<ExcuteCodeResponse> runCode(@RequestBody CodeRunRequest codeRunRequest, HttpServletRequest request) {
         if (codeRunRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        
+        // 检查用户是否登录（暂时注释掉权限校验）
+        // User loginUser = userService.getLoginUser(request);
         
         String code = codeRunRequest.getCode();
         String language = codeRunRequest.getLanguage();

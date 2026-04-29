@@ -72,8 +72,11 @@ public class ExamController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        User loginUser = userService.getLoginUser(request);
+        if (!"teacher".equals(loginUser.getUserRole()) && !"admin".equals(loginUser.getUserRole())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "只有老师可以删除考试");
+        }
         long id = deleteRequest.getId();
-        // 判断是否存在
         Exam oldExam = examService.getById(id);
         ThrowUtils.throwIf(oldExam == null, ErrorCode.NOT_FOUND_ERROR);
         boolean b = examService.removeById(id);

@@ -5,13 +5,13 @@
         <div class="card-header">
           <h2>班级列表</h2>
           <div>
-            <el-button v-if="userStore.userRole === 'teacher' || userStore.userRole === 'admin'" type="primary" @click="handleAddClass">创建班级</el-button>
-            <el-button v-if="userStore.userRole === 'user'" type="success" @click="showJoinDialog">加入班级</el-button>
+            <el-button v-if="userRole === 'teacher' || userRole === 'admin'" type="primary" @click="handleAddClass">创建班级</el-button>
+            <el-button v-if="userRole === 'user'" type="success" @click="showJoinDialog">加入班级</el-button>
           </div>
         </div>
       </template>
       
-      <el-form :inline="true" :model="searchForm" class="search-form">
+      <el-form v-if="userRole === 'teacher' || userRole === 'admin'" :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="搜索">
           <el-input v-model="searchForm.keyword" placeholder="请输入班级名称" />
         </el-form-item>
@@ -32,14 +32,14 @@
         <el-table-column prop="description" label="班级描述" min-width="200" />
         <el-table-column label="操作" width="180">
           <template #default="scope">
-            <el-button v-if="userStore.userRole === 'teacher' || userStore.userRole === 'admin'" type="primary" size="small" @click="handleEditClass(scope.row.id)">编辑</el-button>
-            <el-button v-if="userStore.userRole === 'teacher' || userStore.userRole === 'admin'" type="danger" size="small" @click="handleDeleteClass(scope.row.id)">删除</el-button>
-            <el-button v-if="userStore.userRole === 'user'" type="warning" size="small" @click="handleLeaveClass(scope.row.id)">退出</el-button>
+            <el-button v-if="userRole === 'teacher' || userRole === 'admin'" type="primary" size="small" @click="handleEditClass(scope.row.id)">编辑</el-button>
+            <el-button v-if="userRole === 'teacher' || userRole === 'admin'" type="danger" size="small" @click="handleDeleteClass(scope.row.id)">删除</el-button>
+            <el-button v-if="userRole === 'user'" type="warning" size="small" @click="handleLeaveClass(scope.row.id)">退出</el-button>
           </template>
         </el-table-column>
       </el-table>
       
-      <div class="pagination-container">
+      <div v-if="userRole === 'teacher' || userRole === 'admin'" class="pagination-container">
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
@@ -52,7 +52,6 @@
       </div>
     </el-card>
     
-    <!-- 加入班级对话框 -->
     <el-dialog v-model="joinDialogVisible" title="加入班级" width="400px">
       <el-form :model="joinForm" label-width="100px">
         <el-form-item label="班级代码">
@@ -79,6 +78,7 @@ const classList = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const userRole = ref('')
 
 const searchForm = reactive({
   keyword: ''
@@ -102,21 +102,28 @@ const resetForm = () => {
 
 const fetchClassList = async () => {
   try {
-    // 根据用户角色获取不同的班级列表
-    if (userStore.userRole === 'user') {
-      // 学生获取自己加入的班级
+    const role = userStore.user?.userRole || ''
+    userRole.value = role
+    
+    if (!role) {
+      return
+    }
+    
+    if (role === 'user') {
       const response = await classApi.getMyClasses()
       classList.value = response.data || []
       total.value = classList.value.length
-    } else {
-      // 老师和管理员获取所有班级
-      const response = await classApi.listClassVOByPage({
+    } else if (role === 'teacher' || role === 'admin') {
+      const params = {
         current: currentPage.value,
-        pageSize: pageSize.value,
-        keyword: searchForm.keyword
-      })
-      classList.value = response.data.records
-      total.value = response.data.total
+        pageSize: pageSize.value
+      }
+      if (searchForm.keyword) {
+        params.className = searchForm.keyword
+      }
+      const response = await classApi.listClassVOByPage(params)
+      classList.value = response.data.records || []
+      total.value = response.data.total || 0
     }
   } catch (error) {
     console.error('获取班级列表失败', error)
@@ -163,7 +170,7 @@ const handleJoinClass = async () => {
   }
   
   try {
-    await classApi.joinClass(joinForm.classCode)
+    await classApi.joinClass(joinForm.classCode.trim())
     ElMessage.success('加入班级成功')
     joinDialogVisible.value = false
     fetchClassList()
@@ -198,8 +205,9 @@ const handleCurrentChange = (current) => {
   fetchClassList()
 }
 
-onMounted(() => {
-  fetchClassList()
+onMounted(async () => {
+  userStore.initUser()
+  await fetchClassList()
 })
 </script>
 
