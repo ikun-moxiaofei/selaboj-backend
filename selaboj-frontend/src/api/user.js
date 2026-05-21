@@ -19,13 +19,15 @@ api.interceptors.request.use(
 // 响应拦截器
 api.interceptors.response.use(
   response => {
-    if (response.data.code === 0) {
+    console.log('API响应:', response)
+    if (response.data && response.data.code === 0) {
       return response.data
     } else {
-      return Promise.reject(new Error(response.data.message || '请求失败'))
+      return Promise.reject(new Error(response.data?.message || '请求失败'))
     }
   },
   error => {
+    console.error('API错误:', error)
     return Promise.reject(error)
   }
 )

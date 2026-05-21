@@ -338,7 +338,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "考试已结束");
         }
 
-        // 检查是否已有考试记录
+        // 检查是否已有考试记录（只有被发布到考试的班级学生才有记录）
         QueryWrapper<ExamRecord> examRecordQueryWrapper = new QueryWrapper<>();
         examRecordQueryWrapper.eq("examId", examId);
         examRecordQueryWrapper.eq("userId", loginUser.getId());
@@ -346,19 +346,15 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam>
         ExamRecord examRecord = examRecordMapper.selectOne(examRecordQueryWrapper);
 
         if (examRecord == null) {
-            // 创建考试记录
-            examRecord = new ExamRecord();
-            examRecord.setExamId(examId);
-            examRecord.setUserId(loginUser.getId());
-            examRecord.setTotalScore(0);
-            examRecord.setStatus(1); // 考试中
-            examRecord.setStartTime(new Date());
-            examRecordMapper.insert(examRecord);
+            // 没有考试记录，说明用户不在考试发布的班级中
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您不在该考试的班级中，无法开始考试");
         } else if (examRecord.getStatus() == 0) {
             // 更新状态为考试中
             examRecord.setStatus(1);
             examRecord.setStartTime(new Date());
             examRecordMapper.updateById(examRecord);
+        } else if (examRecord.getStatus() == 1) {
+            // 考试中，直接返回已有记录
         } else if (examRecord.getStatus() == 2) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "考试已完成");
         }
@@ -686,5 +682,33 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam>
         examRecordMapper.updateById(examRecord);
 
         return true;
+    }
+
+    @Override
+    public boolean removeById(Long id) {
+        // 删除答题记录（需要先删除exam_answer，因为它依赖exam_record）
+        QueryWrapper<ExamRecord> examRecordQueryWrapper = new QueryWrapper<>();
+        examRecordQueryWrapper.eq("examId", id);
+        List<ExamRecord> examRecords = examRecordMapper.selectList(examRecordQueryWrapper);
+        if (CollectionUtils.isNotEmpty(examRecords)) {
+            for (ExamRecord examRecord : examRecords) {
+                QueryWrapper<ExamAnswer> examAnswerQueryWrapper = new QueryWrapper<>();
+                examAnswerQueryWrapper.eq("examRecordId", examRecord.getId());
+                examAnswerMapper.delete(examAnswerQueryWrapper);
+            }
+        }
+
+        // 删除考试记录
+        QueryWrapper<ExamRecord> recordDeleteWrapper = new QueryWrapper<>();
+        recordDeleteWrapper.eq("examId", id);
+        examRecordMapper.delete(recordDeleteWrapper);
+
+        // 删除考试题目关联
+        QueryWrapper<ExamQuestion> examQuestionQueryWrapper = new QueryWrapper<>();
+        examQuestionQueryWrapper.eq("examId", id);
+        examQuestionMapper.delete(examQuestionQueryWrapper);
+
+        // 删除考试本身
+        return super.removeById(id);
     }
 }

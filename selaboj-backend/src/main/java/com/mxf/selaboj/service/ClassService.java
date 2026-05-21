@@ -92,4 +92,6 @@ public interface ClassService extends IService<Class> {
      * @return
      */
     java.util.List<ClassVO> getStudentClasses(Long userId);
+
+    boolean removeById(Long id);
 }

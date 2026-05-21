@@ -65,6 +65,10 @@ public class ClassController {
         boolean result = classService.save(clazz);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         long newClassId = clazz.getId();
+
+        // 自动将创建者（老师）添加为班级成员
+        classService.addClassMembers(newClassId, java.util.Collections.singletonList(loginUser.getId()));
+
         return ResultUtils.success(newClassId);
     }
 

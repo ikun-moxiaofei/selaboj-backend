@@ -25,7 +25,12 @@
         <el-table-column prop="id" label="班级ID" width="80" />
         <el-table-column prop="className" label="班级名称" min-width="200">
           <template #default="scope">
-            <el-button type="text" @click="handleViewClass(scope.row.id)">{{ scope.row.className }}</el-button>
+            <el-button 
+              v-if="userRole === 'teacher' || userRole === 'admin'" 
+              type="text" 
+              @click="handleViewClass(scope.row.id)"
+            >{{ scope.row.className }}</el-button>
+            <span v-else>{{ scope.row.className }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="classCode" label="班级代码" width="150" />
@@ -70,6 +75,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../../store/user'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import classApi from '../../api/class'
 
 const router = useRouter()

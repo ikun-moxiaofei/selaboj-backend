@@ -277,4 +277,15 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class>
             return classVO;
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public boolean removeById(Long id) {
+        // 删除班级学生关联
+        QueryWrapper<ClassStudent> classStudentQueryWrapper = new QueryWrapper<>();
+        classStudentQueryWrapper.eq("classId", id);
+        classStudentMapper.delete(classStudentQueryWrapper);
+
+        // 删除班级本身
+        return super.removeById(id);
+    }
 }

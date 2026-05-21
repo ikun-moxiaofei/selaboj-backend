@@ -8,7 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mxf.selaboj.common.ErrorCode;
 import com.mxf.selaboj.constant.CommonConstant;
 import com.mxf.selaboj.exception.BusinessException;
-import com.mxf.selaboj.mapper.UserMapper;
+import com.mxf.selaboj.mapper.*;
+import com.mxf.selaboj.model.entity.*;
 import com.mxf.selaboj.model.dto.user.UserQueryRequest;
 import com.mxf.selaboj.model.entity.User;
 import com.mxf.selaboj.model.enums.UserRoleEnum;
@@ -19,6 +20,7 @@ import com.mxf.selaboj.utils.SqlUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -39,6 +41,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "mxf";
+
+    @Resource
+    private ClassStudentMapper classStudentMapper;
+
+    @Resource
+    private QuestionSubmitMapper questionSubmitMapper;
+
+    @Resource
+    private ExamRecordMapper examRecordMapper;
+
+    @Resource
+    private ExamAnswerMapper examAnswerMapper;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -67,6 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.eq("userAccount", userAccount);
             long count = this.baseMapper.selectCount(queryWrapper);
             if (count > 0) {
+                log.info("账号重复{}", userAccount);
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
             // 2. 加密
@@ -279,5 +294,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean removeById(Long id) {
+        // 删除用户的考试答题记录
+        QueryWrapper<ExamRecord> examRecordQueryWrapper = new QueryWrapper<>();
+        examRecordQueryWrapper.eq("userId", id);
+        List<ExamRecord> examRecords = examRecordMapper.selectList(examRecordQueryWrapper);
+        if (examRecords != null && !examRecords.isEmpty()) {
+            for (ExamRecord examRecord : examRecords) {
+                QueryWrapper<ExamAnswer> examAnswerQueryWrapper = new QueryWrapper<>();
+                examAnswerQueryWrapper.eq("examRecordId", examRecord.getId());
+                examAnswerMapper.delete(examAnswerQueryWrapper);
+            }
+        }
+
+        // 删除用户的考试记录
+        QueryWrapper<ExamRecord> recordDeleteWrapper = new QueryWrapper<>();
+        recordDeleteWrapper.eq("userId", id);
+        examRecordMapper.delete(recordDeleteWrapper);
+
+        // 删除用户的题目提交记录
+        QueryWrapper<QuestionSubmit> questionSubmitQueryWrapper = new QueryWrapper<>();
+        questionSubmitQueryWrapper.eq("userId", id);
+        questionSubmitMapper.delete(questionSubmitQueryWrapper);
+
+        // 删除用户的班级关联
+        QueryWrapper<ClassStudent> classStudentQueryWrapper = new QueryWrapper<>();
+        classStudentQueryWrapper.eq("userId", id);
+        classStudentMapper.delete(classStudentQueryWrapper);
+
+        // 删除用户本身
+        return super.removeById(id);
     }
 }

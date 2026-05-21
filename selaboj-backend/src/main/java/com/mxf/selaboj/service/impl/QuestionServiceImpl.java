@@ -9,16 +9,20 @@ import com.mxf.selaboj.exception.BusinessException;
 import com.mxf.selaboj.exception.ThrowUtils;
 import com.mxf.selaboj.model.dto.question.QuestionQueryRequest;
 import com.mxf.selaboj.model.entity.*;
+import com.mxf.selaboj.mapper.ExamQuestionMapper;
 import com.mxf.selaboj.mapper.QuestionMapper;
+import com.mxf.selaboj.mapper.QuestionSubmitMapper;
 import com.mxf.selaboj.model.vo.QuestionVO;
 import com.mxf.selaboj.model.vo.UserVO;
 import com.mxf.selaboj.service.QuestionService;
 import com.mxf.selaboj.service.UserService;
 import com.mxf.selaboj.utils.SqlUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -30,12 +34,19 @@ import java.util.stream.Collectors;
 * @createDate 2024-02-16 19:46:17
 */
 @Service
+@Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         implements QuestionService{
 
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private ExamQuestionMapper examQuestionMapper;
+
+    @Resource
+    private QuestionSubmitMapper questionSubmitMapper;
 
     /**
      * 校验题目是否合法
@@ -180,5 +191,28 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         return questionVOPage;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeById(Long id) {
+        log.info("开始删除题目，ID: {}", id);
+        
+        // 删除考试题目关联
+        QueryWrapper<ExamQuestion> examQuestionQueryWrapper = new QueryWrapper<>();
+        examQuestionQueryWrapper.eq("questionId", id);
+        int examQuestionCount = examQuestionMapper.delete(examQuestionQueryWrapper);
+        log.info("删除考试题目关联记录数: {}", examQuestionCount);
+
+        // 删除题目提交记录
+        QueryWrapper<QuestionSubmit> questionSubmitQueryWrapper = new QueryWrapper<>();
+        questionSubmitQueryWrapper.eq("questionId", id);
+        int questionSubmitCount = questionSubmitMapper.delete(questionSubmitQueryWrapper);
+        log.info("删除题目提交记录数: {}", questionSubmitCount);
+
+        // 删除题目本身
+        boolean result = super.removeById(id);
+        log.info("删除题目结果: {}", result);
+        
+        return result;
+    }
 
 }

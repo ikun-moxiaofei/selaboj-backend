@@ -30,7 +30,7 @@ const routes = [
     component: () => import('../views/admin/UserManage.vue'),
     meta: {
       requiresAuth: true,
-      requiresAdmin: true
+      requiresTeacher: true
     }
   },
   {
@@ -94,7 +94,8 @@ const routes = [
     name: 'ClassDetail',
     component: () => import('../views/class/ClassDetail.vue'),
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiresTeacher: true
     }
   },
   {
@@ -128,6 +129,24 @@ const routes = [
     meta: {
       requiresAuth: true
     }
+  },
+  {
+    path: '/grade/list',
+    name: 'GradeList',
+    component: () => import('../views/GradeQuery.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresTeacher: true
+    }
+  },
+  {
+    path: '/teacher/students',
+    name: 'TeacherStudents',
+    component: () => import('../views/teacher/StudentManage.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresTeacher: true
+    }
   }
 ]
 
@@ -140,13 +159,16 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
-  
+  const requiresTeacher = to.matched.some(record => record.meta.requiresTeacher)
+
   const user = localStorage.getItem('user')
   const userInfo = user ? JSON.parse(user) : null
-  
+
   if (requiresAuth && !userInfo) {
     next('/login')
   } else if (requiresAdmin && (!userInfo || userInfo.userRole !== 'admin')) {
+    next('/')
+  } else if (requiresTeacher && (!userInfo || (userInfo.userRole !== 'admin' && userInfo.userRole !== 'teacher'))) {
     next('/')
   } else {
     next()

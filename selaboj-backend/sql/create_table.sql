@@ -245,3 +245,6 @@ INSERT INTO question (title, content, tags, answer, questionType, options, userI
 -- 10. Java集合
 ('Java集合框架', '以下哪个集合类是线程安全的？', '["Java","集合","选择题"]', 'D', 1,
  '[{"key":"A","value":"ArrayList"},{"key":"B","value":"HashMap"},{"key":"C","value":"LinkedList"},{"key":"D","value":"Vector"}]', 1);
+
+
+select * from user

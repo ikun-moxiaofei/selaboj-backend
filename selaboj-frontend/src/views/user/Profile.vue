@@ -13,9 +13,6 @@
         <el-form-item label="用户名" prop="userName">
           <el-input v-model="userForm.userName" />
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email" />
-        </el-form-item>
         <el-form-item label="角色" prop="userRole">
           <el-input v-model="userForm.userRole" disabled />
         </el-form-item>
@@ -45,17 +42,12 @@ const error = ref('')
 const userForm = reactive({
   userAccount: '',
   userName: '',
-  email: '',
   userRole: ''
 })
 
 const rules = {
   userName: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
   ]
 }
 
@@ -68,8 +60,7 @@ const handleUpdate = async () => {
       error.value = ''
       try {
         await userStore.updateProfile({
-          userName: userForm.userName,
-          email: userForm.email
+          userName: userForm.userName
         })
         // 刷新页面
         location.reload()
@@ -92,7 +83,6 @@ const loadUserInfo = async () => {
     const userInfo = await userStore.getCurrentUser()
     userForm.userAccount = userInfo.userAccount
     userForm.userName = userInfo.userName
-    userForm.email = userInfo.email
     userForm.userRole = userInfo.userRole
   } catch (error) {
     console.error('获取用户信息失败', error)

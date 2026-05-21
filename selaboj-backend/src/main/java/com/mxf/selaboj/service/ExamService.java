@@ -123,4 +123,6 @@ public interface ExamService extends IService<Exam> {
      * @return
      */
     boolean autoGrade(long examRecordId);
+
+    boolean removeById(Long id);
 }

@@ -160,10 +160,15 @@ public class ExamController {
      *
      * @param examId
      * @param classId
+     * @param request
      * @return
      */
     @PostMapping("/publish")
-    public BaseResponse<Boolean> publishExamToClass(@RequestParam long examId, @RequestParam long classId) {
+    public BaseResponse<Boolean> publishExamToClass(@RequestParam long examId, @RequestParam long classId, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (!"teacher".equals(loginUser.getUserRole()) && !"admin".equals(loginUser.getUserRole())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "只有老师或管理员可以发布考试");
+        }
         boolean result = examService.publishExamToClass(examId, classId);
         return ResultUtils.success(result);
     }
