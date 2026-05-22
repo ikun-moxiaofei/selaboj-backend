@@ -152,6 +152,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam>
                     examQuestionVO.setQuestionTitle(question.getTitle());
                     examQuestionVO.setQuestionType(question.getQuestionType());
                     examQuestionVO.setScore(examQuestion.getScore());
+                    examQuestionVO.setQuestion(QuestionVO.objToVo(question));
                     // 为选择题添加选项信息
                     if (question.getQuestionType() == 1) {
                         log.info("选择题ID: {}, 选项: {}", question.getId(), question.getOptions());

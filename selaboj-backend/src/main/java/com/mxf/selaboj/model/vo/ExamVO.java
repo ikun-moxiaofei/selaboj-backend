@@ -1,5 +1,6 @@
 package com.mxf.selaboj.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mxf.selaboj.model.entity.Exam;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -31,11 +32,13 @@ public class ExamVO implements Serializable {
     /**
      * 开始时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
 
     /**
      * 结束时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
 
     /**
@@ -56,11 +59,13 @@ public class ExamVO implements Serializable {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
     /**

@@ -40,15 +40,6 @@
           <el-descriptions-item label="内存限制">{{ question.judgeConfig?.memoryLimit }}KB</el-descriptions-item>
           <el-descriptions-item label="堆栈限制">{{ question.judgeConfig?.stackLimit }}KB</el-descriptions-item>
         </el-descriptions>
-        
-        <h3>判题用例</h3>
-        <div v-for="(judgeCase, index) in question.judgeCase" :key="index" class="judge-case-item">
-          <div class="case-header">用例 {{ index + 1 }}</div>
-          <div class="case-content">
-            <div class="case-input"><strong>输入:</strong> {{ judgeCase.input }}</div>
-            <div class="case-output"><strong>输出:</strong> {{ judgeCase.output }}</div>
-          </div>
-        </div>
       </div>
       
       <!-- 提交代码（编程题） -->

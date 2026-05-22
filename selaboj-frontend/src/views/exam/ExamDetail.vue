@@ -36,6 +36,9 @@
             <el-tag v-else-if="question.answerStatus === 3" type="danger" size="small" style="margin-left: 10px">错误</el-tag>
             <el-tag v-else-if="question.answerStatus === 1" type="info" size="small" style="margin-left: 10px">已提交</el-tag>
           </div>
+          <div class="question-description" v-if="question.question && question.question.content">
+            <div v-html="question.question.content"></div>
+          </div>
           
           <!-- 选择题 -->
           <div v-if="question.questionType === 1" class="question-content">
@@ -401,6 +404,15 @@ onMounted(() => {
   font-weight: bold;
   margin-bottom: 15px;
   font-size: 16px;
+}
+
+.question-description {
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  line-height: 1.6;
+  color: #606266;
 }
 
 .question-number {
